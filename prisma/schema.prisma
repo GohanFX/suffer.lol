@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Summoner {
+  accountId    String
+  id           String @id
+  name         String
+  profileIconId Int
+  puuid        String
+  revisionDate Int
+  summonerLevel Int
+  leagues      League[]
+}
+
+model League {
+  id        String @id
+  queueType String
+  tier      String
+  rank      String
+  summoner  Summoner @relation(fields: [summonerId], references: [id])
+  summonerId String
+  leagueId  String
+  wins      Int
+  losses    Int
+  leaguePoints Int
+  hotStreak Boolean
+  veteran Boolean
+  freshBlood Boolean
+  inactive Boolean
+}
+
