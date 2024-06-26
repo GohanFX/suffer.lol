@@ -10,7 +10,6 @@ interface ChampionDataDragon {
     };
 
 }
-
 interface Champion {
     id: string;
     name: string;
@@ -47,8 +46,6 @@ interface Champion {
         attackspeed: number;
     };
 }
-
-
 
 async function getChampions() {
     const response = await fetch('https://ddragon.leagueoflegends.com/cdn/14.12.1/data/en_US/champion.json');

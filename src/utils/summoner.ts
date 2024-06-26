@@ -31,7 +31,6 @@ async function getSummonerIdByName(
       status: response.status,
     };
   }
-
   const { puuid, gameName } = await response.json();
   const summoner = await fetch(
     `https://${server}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/` +
@@ -42,6 +41,11 @@ async function getSummonerIdByName(
       },
     }
   );
+  if(response.status !== 200) {
+    return {
+      status: response.status,
+    };
+  }
   const data = await summoner.json();
   const summonerLeague = await fetch(
     `https://${server}.api.riotgames.com/lol/league/v4/entries/by-summoner/` +
@@ -53,11 +57,10 @@ async function getSummonerIdByName(
     }
   );
   const leagueData = await summonerLeague.json();
-console.log(data.puuid)
+
   return {
     status: 200,
     id: data.id,
-    
     accountId: data.accountId,
     puuid: data.puuid,
     name: gameName,
@@ -69,3 +72,4 @@ console.log(data.puuid)
 }
 
 export { getSummonerIdByName };
+export type { Summoner };
