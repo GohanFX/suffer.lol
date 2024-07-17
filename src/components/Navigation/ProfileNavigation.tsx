@@ -1,13 +1,15 @@
 "use client"
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 import React from "react";
 
 interface ProfileNavigationProps {
     tag: string;
     summonerName: string;
     active: string;
-    
+   
 };
 
 const styles= {
@@ -19,33 +21,35 @@ const styles= {
 
 
 const ProfileNavigation = ({tag, summonerName, active}: ProfileNavigationProps) => {
+    const path = usePathname();
 
-    const [activePage, setActivePage] = React.useState(active);
+    console.log(path, active)
+
 
   return (
     <ul className="flex gap-[8px] p-[8px] space-x-[8px]  bg-zinc-800 bg-opacity-30 text-white/30">
       <li>
         <Link
-          className={cn(activePage === "overview" && styles.navigation.activeLink, styles.navigation.link)}
+          className={cn(path === `/summoner/${tag}/${summonerName}/overview` && styles.navigation.activeLink, styles.navigation.link)}
           href={`/summoner/${tag}/${summonerName}/overview`}
-          onClick={() => setActivePage("overview")}
+ 
         >
           Overview
         </Link>
       </li>
       <li>
         <Link
-            className={cn(activePage === "champion-stats" && styles.navigation.activeLink, styles.navigation.link)}
+            className={cn(path === `/summoner/${tag}/${summonerName}/champion-stats` && styles.navigation.activeLink, styles.navigation.link)}
           href={`/summoner/${tag}/${summonerName}/champion-stats`}
-            onClick={() => setActivePage("champion-stats")}
+           
         >
           Champion Stats
         </Link>
       </li>
       <li>
         <Link
-        className={cn(activePage === "live" && styles.navigation.activeLink, styles.navigation.link)}
-            onClick={() => setActivePage("live")}
+        className={cn(path === `/summoner/${tag}/${summonerName}/live` && styles.navigation.activeLink, styles.navigation.link)}
+
          href={`/summoner/${tag}/${summonerName}/live`}>
           Live Game
         </Link>

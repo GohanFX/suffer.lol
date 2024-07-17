@@ -1,28 +1,42 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import Link from "next/link";
-import Summoner, { SummonerProps } from "./Summoner";
+
+import { Summoner } from "@prisma/client";
+import SummonerItem from "./SummonerItem";
 
 
-interface SummonerSearcherProps {
-  searchFunction: (name: string) => void;
-  summoners: SummonerProps[]
-  
-}
 
-const SummonerSearcher = ({ searchFunction, summoners }: SummonerSearcherProps) => {
+const SummonerSearcher = () => {
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const handleClick = (ev:  MouseEvent) => {
+    if (dropdownRef.current!.contains(ev.target as Node)) {
+      return;
+    }
+   
+    setIsSearchFocused(false);
+  };
+
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClick, false);
+    return () => document.removeEventListener('mousedown',  handleClick, false);
+  }, []);
+
+  
 
   const searchRef = React.useRef<HTMLInputElement>(null);
   return (
-    <div className="w-full relative justify-center">
+    <div className="w-full relative justify-center"  ref={dropdownRef}>
       <input
         className="w-full  text-pretty bg-transparent placeholder:text-white-300 text-white  outline-none   border-opacity-30 p-2"
         type="text"
         placeholder="Type your summoner name here + tag name!"
-        onChange={(e) => searchFunction(e.target.value)}
+        onChange={(e) => console.log(e.target.value)}
         onFocus={() => setIsSearchFocused(true)}
         
         ref={searchRef}
@@ -33,7 +47,7 @@ const SummonerSearcher = ({ searchFunction, summoners }: SummonerSearcherProps) 
             <h1 className="text-white text-opacity-60">Search Results</h1>
           </CardHeader>
           <CardContent className="p-4">
-              <Summoner summonerName="summonerName" tagLine="#EUW" level={30} profileIcon={1} />
+              
           </CardContent>
         </Card>
       ) : (

@@ -20,21 +20,27 @@ const SummonerRank = ({
   inactive,
 }: League) => {
   return (
-    <div className="min-w-[270px]  mt-2 mx-2 border border-zinc-800/60 rounded-md p-2 bg-zinc-800/30 transition-colors hover:bg-zinc-800/50">
+    <div className="min-w-[270px] min-h-[95px] px-2 py-3 border border-zinc-800/60 rounded-md p-2 bg-panels/75 transition-colors ">
       <div className="flex flex-row space-x-2 items-center">
-        <Image src={ranks[tier]} alt={rank} height={75} width={75} />
+        <Image src={ranks[tier]} alt={rank} className={"h-[75px] w-[75px]"} />
 
-        <div className=" leading-[0px]">
-          <h1 className="text-lg leading-none font-semibold text-white/80">
+        <div className="w-full h-full leading-[0px]">
+          <h1 className="text-[14px] leading-3 font-semibold text-white/80">
             {transformRank(queueType).toUpperCase()}
           </h1>
-          <h2 className="text-sm text-white/80 pb-[8px] font-medium">{`${tier} ${rank}`}</h2>
-          <div className="text-[12px] text-opacity-35">
-            <p className="text-white/40 leading-none">
-              W: {wins} L: {losses}
+          <h2 className="text-[12px] leading-3 text-white/80 pb-[16px] font-medium"><span className={"text-white/40"}>{tier}</span> {rank}</h2>
+          <div className="flex justify-between items-center w-full">
+            <div className="text-[12px] text-opacity-35">
+              <p className="text-white/40 leading-none">
+                W: <span className={"text-white font-medium"}>{wins}</span> L: <span className={"text-white font-medium"}>{losses}</span>
+              </p>
+              <p className="text-white/40 leading-none">LP: <span className={"text-white font-medium"}>{leaguePoints}</span></p>
+            </div>
+            <p className="text-white/40 leading-none text-[12px] text-right">
+              Winrate: <span className={"font-semibold text-white mr-2"}>{(((wins) / (wins + losses)) * 100).toFixed(2)}%</span>
             </p>
-            <p className="text-white/40 leading-none">LP: {leaguePoints}</p>
           </div>
+
         </div>
       </div>
     </div>

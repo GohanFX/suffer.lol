@@ -12,10 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import SummonerSearcher from "@/components/SummonerSearch/SummonerSearcher";
-import { SummonerProps } from "@/components/SummonerSearch/Summoner";
+import { Summoner } from "@prisma/client";
 export default async function Home() {
-  const randomBackground = await getRandomBackground();
-  let searchResults: SummonerProps[] = [];
+
+  let searchResults: Summoner[] = [];
 
   async function searchSummoner(name: string) {
     "use server";
@@ -33,20 +33,9 @@ export default async function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between relative">
-      <div
-        className="abosolute min-h-screen w-full top-0 left-0"
-        style={{
-          backgroundImage: `url(${randomBackground})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          filter: "blur(15px)",
-        }}
-      />
-
-      <div className="flex flex-col items-center top-0 left-0 justify-center min-h-screen w-full absolute leading-none">
-        <div className="w-3/6 shadow-text  outline-1 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+    <main className="flex min-h-screen flex-col items-center justify-between bg-zinc-800 no-scrollbar w-full">
+      <div className=" w-full leading-none container flex flex-col justify-center items-center min-h-screen no-scrollbar">
+        <div className="w-full md:w-3/6 p-2  shadow-text  drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
           <h1 className="text-4xl font-bold text-white text-left  ">
             Hello, Summoner!
           </h1>
@@ -78,7 +67,7 @@ export default async function Home() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <SummonerSearcher searchFunction={searchSummoner} summoners={searchResults} />
+              <SummonerSearcher  />
             </div>
          
             

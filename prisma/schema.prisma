@@ -22,6 +22,7 @@ model Summoner {
   revisionDate Int
   summonerLevel Int
   leagues      League[]
+  tag String
 }
 
 model League {

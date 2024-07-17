@@ -1,3 +1,4 @@
+import { Summoner } from "@prisma/client";
 import Link from "next/link";
 import React from "react";
 
@@ -8,7 +9,7 @@ export interface SummonerProps {
     profileIcon: number;
 }
 
-const Summoner = ({summonerName, tagLine, level, profileIcon}: SummonerProps) => {
+const SummonerItem = ({name, tag, summonerLevel, profileIconId}: Summoner) => {
   return (
     <Link
       href="/summoner/summonerName"
@@ -16,13 +17,13 @@ const Summoner = ({summonerName, tagLine, level, profileIcon}: SummonerProps) =>
     >
       <div className="flex items-center">
         <img
-          src={`https://ddragon.leagueoflegends.com/cdn/11.16.1/img/profileicon/${profileIcon}.png`}
+          src={`https://ddragon.leagueoflegends.com/cdn/11.16.1/img/profileicon/${profileIconId}.png`}
           alt="profile icon"
           className="w-10 h-10 rounded-full"
         />
         <div className="ml-2">
-          <h1 className="text-white text-opacity-80">{summonerName} <span className="text-sm font-medium italic">{tagLine}</span></h1>
-          <p className="text-white text-opacity-60">Level {level}</p>
+          <h1 className="text-white text-opacity-80">{name} <span className="text-sm font-medium italic">{tag}</span></h1>
+          <p className="text-white text-opacity-60">Level {summonerLevel}</p>
         </div>
       </div>
         <svg
@@ -39,9 +40,8 @@ const Summoner = ({summonerName, tagLine, level, profileIcon}: SummonerProps) =>
                 d="M9 5l7 7-7 7"
             />
         </svg>
-        
     </Link>
   );
 };
 
-export default Summoner;
+export default SummonerItem;

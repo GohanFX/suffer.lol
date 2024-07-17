@@ -1,18 +1,13 @@
-import { League } from "@prisma/client";
+import { League, Summoner } from "@prisma/client";
 import { error } from "console";
+import { getMatches } from "./matches";
 
-interface Summoner {
-  id: string;
-  accountId: string;
-  puuid: string;
-  name: string;
-  profileIconId: number;
-  revisionDate: number;
-  summonerLevel: number;
+interface SummonerDTO extends Summoner {
   leagues: League[];
+  masteries: ChampionDTO[];
 }
 
-async function getSummonerIdByName(
+async function getSummonerByName(
   server: string,
   summonerName: string,
   tag: string
@@ -57,19 +52,48 @@ async function getSummonerIdByName(
     }
   );
   const leagueData = await summonerLeague.json();
+  const summonerData: SummonerDTO = {
+    
+    ...data,
+    leagues: leagueData,
+  };
 
+  const championMastery = await fetch(`https://${server}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}`, {
+    headers: {
+      "X-Riot-Token": process.env.RIOT_API_KEY!
+    }
+  })
+  const championData: ChampionDTO[] = await championMastery.json();
+  const matches = await getMatches(puuid);
   return {
     status: 200,
-    id: data.id,
-    accountId: data.accountId,
-    puuid: data.puuid,
     name: gameName,
-    profileIconId: data.profileIconId,
-    revisionDate: data.revisionDate,
-    summonerLevel: data.summonerLevel,
-    leagues: leagueData,
+    summonerData: {
+      ...summonerData,
+      masteries: championData,
+     
+    },
+
   };
 }
 
-export { getSummonerIdByName };
-export type { Summoner };
+
+
+interface ChampionDTO {
+  puuid: string;
+  championPointsSinceLastLevel: number;
+  championId: number;
+  lastPlayTime: number;
+  championLevel: number;
+  championPoints: number;
+  championPointsUntilNextLevel: number;
+  markRequiredForNextLevel: number;
+  championSeasonMilestone: number;
+  tokensEarned: number;
+  milestoneGrades: Array<string>;
+}
+
+
+
+export { getSummonerByName };
+export type {ChampionDTO}

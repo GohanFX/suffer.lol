@@ -12,7 +12,7 @@ import { StaticImageData } from 'next/image';
 
 function transformRank(rank: string): string {
     
-    return rank === "RANKED_SOLO_5x5" ? "Solo/Duo" : "Flex";
+    return rank === "RANKED_SOLO_5x5" ? "Ranked Solo/Duo" : "Flex";
 }
 
 
