@@ -9,7 +9,7 @@ interface SummonerNotFoundProps {
   server: string;
 }
 
-const SummonerNotFound = async ({
+const SummonerNotFound =  ({
   summonerName,
   tag,
   server,

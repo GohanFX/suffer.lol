@@ -27,7 +27,7 @@ const ProfileNavigation = ({tag, summonerName, active}: ProfileNavigationProps) 
 
 
   return (
-    <ul className="flex gap-[8px] p-[8px] space-x-[8px]  bg-zinc-800 bg-opacity-30 text-white/30">
+    <ul className="flex gap-[8px] p-[8px] space-x-[8px]   text-white/30">
       <li>
         <Link
           className={cn(path === `/summoner/${tag}/${summonerName}/overview` && styles.navigation.activeLink, styles.navigation.link)}

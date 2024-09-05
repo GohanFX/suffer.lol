@@ -3,6 +3,7 @@ import Iron from '../assets/Rank=Iron.png';
 import Silver from '../assets/Rank=Silver.png';
 import Gold from '../assets/Rank=Gold.png';
 import Platinum from '../assets/Rank=Platinum.png';
+import Emerald from '../assets/Rank=Emerald.png';
 import Diamond from '../assets/Rank=Diamond.png';
 import Master from '../assets/Rank=Master.png';
 import Grandmaster from '../assets/Rank=Grandmaster.png';
@@ -22,6 +23,7 @@ const ranks: {[key: string]: StaticImageData} = {
     "SILVER": Silver,
     "GOLD": Gold,
     "PLATINUM": Platinum,
+    "EMERALD": Emerald,
     "DIAMOND": Diamond,
     "MASTER": Master,
     "GRANDMASTER": Grandmaster,

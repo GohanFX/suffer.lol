@@ -1,27 +1,35 @@
-import {ChampionGames} from "@/components/Champion/ChampionStatBoard";
+import { ChampionGames } from "@/components/Champion/ChampionStatBoard";
+import { ChampionDetails, ChampionDTO } from "@/lib/champions";
 
+// Define types and interfaces
 interface MatchMetaData {
   dataVersion: string;
   matchId: string;
   participants: string[];
 }
+
+interface PerkSelection {
+  perk: number;
+  var1: number;
+  var2: number;
+  var3: number;
+}
+
+interface PerkStyle {
+  description: string;
+  selections: PerkSelection[];
+  style: number;
+}
+
 interface ParticipantPerks {
   statPerks: {
     defense: number;
     flex: number;
     offense: number;
   };
-  styles: {
-    description: string;
-    selections: {
-      perk: number;
-      var1: number;
-      var2: number;
-      var3: number;
-    }[];
-    style: number;
-  }[];
+  styles: PerkStyle[];
 }
+
 interface MatchParticipant {
   assists: number;
   baronKills: number;
@@ -100,7 +108,6 @@ interface MatchParticipant {
   summonerName: string;
   teamEarlySurrendered: boolean;
   teamId: number;
-
   teamPosition: string;
   timeCCingOthers: number;
   timePlayed: number;
@@ -116,7 +123,6 @@ interface MatchParticipant {
   totalUnitsHealed: number;
   tripleKills: number;
   trueDamageDealt: number;
-
   trueDamageDealtToChampions: number;
   trueDamageTaken: number;
   turretKills: number;
@@ -147,7 +153,25 @@ interface Match {
   info: MatchInfo;
 }
 
-async function getMatches(puuid: string, numberOfMatches: number = 5) {
+interface ChampionInformation {
+  name: string;
+  gamesNumber: number;
+  wins: number;
+  loses: number;
+  kills: number;
+  deaths: number;
+  assists: number;
+  kda: number;
+  champion: ChampionDetails;
+}
+
+interface ChampionStat {
+  [key: string]: ChampionInformation;
+}
+
+// Functions
+
+async function fetchMatchIds(puuid: string, numberOfMatches: number): Promise<string[]> {
   const response = await fetch(
     `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=${numberOfMatches}`,
     {
@@ -156,51 +180,59 @@ async function getMatches(puuid: string, numberOfMatches: number = 5) {
       },
     }
   );
-  const matchIds: string[] = await response.json();
-  const matches: Match[] = await Promise.all(
-    matchIds.map(async (id) => {
-      const match = await fetch(
-        `https://europe.api.riotgames.com/lol/match/v5/matches/${id}`,
-        {
-          headers: {
-            "X-Riot-Token": process.env.RIOT_API_KEY!,
-          },
-        }
-      );
-      return await match.json();
-    })
-  );
-  return matches;
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch match IDs");
+  }
+
+  return await response.json();
 }
 
-interface ChampionStat {
-  [key: string]: {
-      gamesNumber: number,
-      wins: number,
-      loses: number,
-      kills: number,
-      deaths: number,
-      assists: number,
-      kda: number
+async function fetchMatchData(matchId: string): Promise<Match> {
+  const response = await fetch(
+    `https://europe.api.riotgames.com/lol/match/v5/matches/${matchId}`,
+    {
+      headers: {
+        "X-Riot-Token": process.env.RIOT_API_KEY!,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch match data for match ID: ${matchId}`);
+  }
+
+  return await response.json();
+}
+
+async function getMatches(puuid: string, numberOfMatches: number = 5): Promise<Match[]> {
+  try {
+    const matchIds = await fetchMatchIds(puuid, numberOfMatches);
+
+    const matches = await Promise.all(matchIds.map(fetchMatchData));
+
+    return matches.filter((match) => match.info.gameMode === "CLASSIC");
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 }
 
-
-const getSummonerAsParticipant = (match: Match, summonerPuuid: string) => {
-  return match.info.participants.find((item) => item.puuid == summonerPuuid)
+const getSummonerAsParticipant = (match: Match, summonerPuuid: string): MatchParticipant | undefined => {
+  return match.info.participants.find((participant) => participant.puuid === summonerPuuid);
 };
 
 function groupByChampions(matches: Match[], summonerPuuid: string): ChampionGames {
   const championsPlayed: ChampionGames = {
-    summonerPuuid: summonerPuuid,
-    champions: {}
+    summonerPuuid,
+    champions: {},
   };
 
-  matches.forEach(match => {
-    const summonerPart = getSummonerAsParticipant(match, summonerPuuid);
-    if (!summonerPart) return;
+  matches.forEach((match) => {
+    const summonerParticipant = getSummonerAsParticipant(match, summonerPuuid);
+    if (!summonerParticipant) return;
 
-    const { championName } = summonerPart;
+    const { championName } = summonerParticipant;
     if (!championsPlayed.champions[championName]) {
       championsPlayed.champions[championName] = [];
     }
@@ -211,17 +243,17 @@ function groupByChampions(matches: Match[], summonerPuuid: string): ChampionGame
   return championsPlayed;
 }
 
-
-function calculateChampionStats(championGames: ChampionGames): ChampionStat {
+function calculateChampionStats(championGames: ChampionGames, champions: ChampionDTO): ChampionStat {
   const championStats: ChampionStat = {};
 
-  Object.keys(championGames.champions).forEach(championName => {
-    championGames.champions[championName].forEach(game => {
+  Object.keys(championGames.champions).forEach((championName) => {
+    championGames.champions[championName].forEach((game) => {
       const summoner = getSummonerAsParticipant(game, championGames.summonerPuuid);
       if (!summoner) return;
 
       if (!championStats[championName]) {
         championStats[championName] = {
+          name: "",
           gamesNumber: 0,
           wins: 0,
           loses: 0,
@@ -229,24 +261,28 @@ function calculateChampionStats(championGames: ChampionGames): ChampionStat {
           deaths: 0,
           assists: 0,
           kda: 0,
+          champion: {} as ChampionDetails,
         };
       }
 
       const currentStats = championStats[championName];
+      currentStats.champion = champions.data[championName];
+      currentStats.name = championName;
       currentStats.gamesNumber += 1;
       currentStats.wins += summoner.win ? 1 : 0;
       currentStats.loses += summoner.win ? 0 : 1;
       currentStats.kills += summoner.kills;
       currentStats.deaths += summoner.deaths;
       currentStats.assists += summoner.assists;
-      currentStats.kda += ((summoner.kills + summoner.assists) / currentStats.deaths);
+      currentStats.kda += (summoner.kills + summoner.assists) / currentStats.deaths;
     });
   });
 
   return championStats;
 }
 
+// Export functions and types
+export { getMatches, getSummonerAsParticipant, calculateChampionStats, groupByChampions };
 
-export {getMatches, getSummonerAsParticipant, calculateChampionStats, groupByChampions}
 
-export type {Match, MatchInfo, MatchParticipant, MatchMetaData, ParticipantPerks}
+export type {Match, MatchInfo, MatchParticipant, MatchMetaData, ParticipantPerks, ChampionInformation}

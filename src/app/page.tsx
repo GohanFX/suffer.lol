@@ -1,4 +1,3 @@
-"use server";
 
 import Image from "next/image";
 import { db, getRandomBackground } from "@/utils";
@@ -18,7 +17,7 @@ export default async function Home() {
   let searchResults: Summoner[] = [];
 
   async function searchSummoner(name: string) {
-    "use server";
+
      const doesExist = await db.summoner.findFirst({
       where: {
         name: {

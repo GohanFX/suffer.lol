@@ -1,0 +1,11 @@
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .match-win {
+        @apply bg-gradient-to-r from-[#B97638] via-90% to-[#BFC2FF]/40;
+    }
+    .match-lose {
+        @apply bg-gradient-to-r from-[#B97638] via-90% to-[#BFC2FF]/40;
+    }
+}

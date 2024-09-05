@@ -9,10 +9,15 @@ import {
     Match,
     MatchParticipant
 } from "@/utils/matches";
+import {ChampionStatFooter, ChampionStatInfoCard, ChampionStatInfoHeader} from "@/components/Champion/ChampionStatInfo";
+import ChampionStat from "@/components/Champion/ChampionStat";
+import Link from "next/link";
+import {ArrowRight} from "lucide-react";
+import "./Statistics.css"
 import { Summoner } from "@prisma/client";
 interface ChampionStatBoardProps {
   matches: Match[];
-  summonerPuuid: string;
+  summoner: Summoner;
   champions: ChampionDTO;
 }
 
@@ -30,36 +35,42 @@ function transformNumber(numberToTransform: number) {
 
 const ChampionStatBoard = ({
   matches,
-  summonerPuuid,
-  champions,
+  summoner,
+    champions
 }: ChampionStatBoardProps) => {
-  const groupsStat = calculateChampionStats(groupByChampions(matches, summonerPuuid));
-    console.log(groupsStat)
+  
+  
+  const groupsStat = calculateChampionStats(groupByChampions(matches, summoner.puuid), champions);
+
+    function compareFunction(a: string, b: string) {
+        const aWinrate = groupsStat[a].gamesNumber;
+        const bWinrate = groupsStat[b].gamesNumber;
+        if(aWinrate < bWinrate) {
+            return 1;
+        }
+        return -1;
+    }
 
   return (
-    <div className="min-w-[270px]  border border-zinc-800/60 rounded-sm bg-panels/75 transition-colors ">
-        <div className="w-full border-b border-b-zinc-800 p-3">
-            <h1 className={'font-semibold text-lg text-white ml-0'}>Champion Statistics</h1>
-        </div>
-      <div className="flex flex-col p-2 gap-[8px]">
-          {Object.keys(groupsStat).map((key: string) => {
-              const champion = groupsStat[key];
-              return (<div key={key} className={"flex w-full gap-2 "}>
-                  <Image src={`https://ddragon.leagueoflegends.com/cdn/14.13.1/img/champion/${
-                      champions.data[key].image.full
-                  }`}
-                         alt={""}
-                         width={35}
-                         height={35}
-                         className={"rounded-md"}
-                  />
-                  <div className="flex flex-wrap items-center justify-between">
-                            <p>{transformNumber(champion.kills / champion.gamesNumber)}/{transformNumber(champion.deaths / champion.gamesNumber)}/{transformNumber(champion.assists / champion.gamesNumber)}</p>
-                  </div>
-              </div>)
-          })}
-      </div>
-    </div>
+   <ChampionStatInfoCard className={"min-w-full "}>
+       <ChampionStatInfoHeader className={"border-b border-[#0E0B0D]"}>
+           Champion Statistics
+       </ChampionStatInfoHeader>
+       <div className="pt-1 ">
+           {Object.keys(groupsStat).slice(0, 5).sort(compareFunction).map((group) => {
+               return <ChampionStat key={group} {...groupsStat[group]} />
+           })}
+
+       </div>
+
+           <ChampionStatFooter
+               href={`/summoner/${summoner.tag}/${summoner.name}/champion-stats`}
+               className={"text-sm text-opacity-20 hover:text-opacity-50"}
+           >
+               <p className={"flex items-center justify-center"}>Click here to see more information <ArrowRight size={'18px'} /></p>
+           </ChampionStatFooter>
+
+   </ChampionStatInfoCard>
   );
 };
 

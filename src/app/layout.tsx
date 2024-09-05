@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navigation/Navbar";
+import ReactQueryProvider from "@/components/Providers/QueryProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,9 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={"bg-zinc-800 h-full" + inter.className}>
-        <Navbar />
-        {children}
+      <body className={"bg-zinc-800 h-full font-inter" + inter.className}>
+        <ReactQueryProvider>
+          <Navbar />
+          {children}
+        </ReactQueryProvider>
         </body>
     </html>
   );

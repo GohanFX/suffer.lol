@@ -7,10 +7,47 @@ interface SummonerDTO extends Summoner {
   masteries: ChampionDTO[];
 }
 
-async function getSummonerByName(
+interface SummonerInfo {
   server: string,
-  summonerName: string,
+  summonerName?: string,
+  summonerId?: string,
   tag: string
+}
+
+
+class SummonerApi {
+    private server: string;
+    private summonerName: string;
+    private tag: string;
+    constructor({server, summonerName, tag}: SummonerInfo) {
+      this.server = server;
+      this.summonerName = summonerName || '';
+      this.tag = tag;
+    }
+
+    async getSummonerId() {
+      const response = await fetch(
+        `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${this.summonerName}/${this.tag}`,
+        {
+          headers: {
+            "X-Riot-Token": process.env.RIOT_API_KEY!,
+          },
+        }
+      );
+    
+      if (response.status !== 200) {
+        return {
+          status: response.status,
+        };
+      }
+      const { puuid } = await response.json();
+      return puuid;
+    }
+}
+
+
+async function getSummonerByName(
+  {server, summonerName, tag}: SummonerInfo
 ) {
   const response = await fetch(
     `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${summonerName}/${tag}`,
@@ -53,7 +90,7 @@ async function getSummonerByName(
   );
   const leagueData = await summonerLeague.json();
   const summonerData: SummonerDTO = {
-    
+
     ...data,
     leagues: leagueData,
   };
@@ -64,16 +101,16 @@ async function getSummonerByName(
     }
   })
   const championData: ChampionDTO[] = await championMastery.json();
-  const matches = await getMatches(puuid);
+  
   return {
     status: 200,
     name: gameName,
     summonerData: {
       ...summonerData,
+      name: gameName,
+      tag,
       masteries: championData,
-     
     },
-
   };
 }
 

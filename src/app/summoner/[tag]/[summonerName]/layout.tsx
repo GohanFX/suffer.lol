@@ -1,28 +1,26 @@
+
+
 import ProfileNavigation from "@/components/Navigation/ProfileNavigation";
 import SummonerNotFound from "@/components/Summoner/SummonerNotFound";
 import { Button } from "@/components/ui/button";
 import {  getSummonerByName } from "@/utils/summoner";
 import Image from "next/image";
 import React from "react";
-
-
+import "@/components/Match/Matches.css";
+import "@/components/Champion/Statistics.css"
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 interface SummonerPageProps {
   params: {
     tag: string;
     summonerName: string;
   };
 }
-
-
-export async function generateMetadata({ params }: SummonerPageProps) {
-  return {
-    title: `Summoner ${decodeURIComponent(params.summonerName)}`,
-    description: `View the profile of ${decodeURIComponent(
-      params.summonerName
-    )}`,
-  };
-}
-
 
 
 const layout = async ({
@@ -36,32 +34,21 @@ const layout = async ({
   children: React.ReactNode;
 }) => {
 
-  const summoner = await getSummonerByName(
-    "euw1",
-    decodeURIComponent(params.summonerName),
-    decodeURIComponent(params.tag)
-  );
-
-
-  if (summoner.status !== 200) {
-    return (
-      <SummonerNotFound
-        summonerName={decodeURIComponent(params.summonerName)}
-        tag={params.tag}
-        server="euw1"
-      />
-    );
-  }
+  const summoner = await getSummonerByName({
+    server: "euw1",
+    summonerName: decodeURIComponent(params.summonerName),
+    tag: decodeURIComponent(params.tag),
+  });
 
   return (
-
-      <div className="w-full flex flex-col items-center bg-zinc-800">
-
-        <div className="w-full md:w-3/6 absolute bg-zinc-800/20 border border-zinc-800 border-opacity-55 min-h-screen border-t-0">
-          <div className="flex w-full  min-h-[100px] gap-[8px] bg-zinc-800/30 p-[8px]">
+  
+      <div className="w-full flex flex-col items-center ">
+        <div className="w-full md:w-3/6 absolute  bg-zinc-800/30 border p-2 space-y-2 border-zinc-800 border-opacity-55 min-h-screen border-t-0">
+          <div className="bg-panels/75   rounded-[10px] p-2">
+          <div className="flex w-full  min-h-[100px]  gap-[8px]  p-[8px]">
             <div className="relative drop-shadow-md ">
               <Image
-                src={`http://ddragon.leagueoflegends.com/cdn/14.12.1/img/profileicon/${summoner.summonerData?.profileIconId}.png`}
+                src={`http://ddragon.leagueoflegends.com/cdn/14.12.1/img/profileicon/${summoner!.summonerData?.profileIconId}.png`}
                 alt="profile icon"
                 width={100}
                 height={100}
@@ -88,10 +75,11 @@ const layout = async ({
             tag={params.tag}
             summonerName={params.summonerName}
           />
+          </div>
           {children}
         </div>
       </div>
-
+   
   );
 };
 

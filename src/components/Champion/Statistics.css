@@ -1,0 +1,12 @@
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+
+.board {
+    @apply bg-panels/75 border-0 rounded-md;
+}
+
+.board-header {
+    @apply text-xl text-white/60 font-medium;
+}

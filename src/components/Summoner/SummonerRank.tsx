@@ -20,7 +20,7 @@ const SummonerRank = ({
   inactive,
 }: League) => {
   return (
-    <div className="min-w-[270px] min-h-[95px] px-2 py-3 border border-zinc-800/60 rounded-md p-2 bg-panels/75 transition-colors ">
+    <div className=" min-h-[95px] px-2 py-3 border border-zinc-800/60 rounded-md p-2 bg-panels/75 transition-colors ">
       <div className="flex flex-row space-x-2 items-center">
         <Image src={ranks[tier]} alt={rank} className={"h-[75px] w-[75px]"} />
 
@@ -28,7 +28,11 @@ const SummonerRank = ({
           <h1 className="text-[14px] leading-3 font-semibold text-white/80">
             {transformRank(queueType).toUpperCase()}
           </h1>
-          <h2 className="text-[12px] leading-3 text-white/80 pb-[16px] font-medium"><span className={"text-white/40"}>{tier}</span> {rank}</h2>
+          <h2 className="text-[12px] leading-3 text-white/80 pb-[16px] font-medium"><span style={
+            {
+              color: getRankColor(tier)
+            }
+          }>{tier}</span> {rank}</h2>
           <div className="flex justify-between items-center w-full">
             <div className="text-[12px] text-opacity-35">
               <p className="text-white/40 leading-none">
@@ -46,5 +50,34 @@ const SummonerRank = ({
     </div>
   );
 };
+
+function getRankColor(tier: string) {
+    console.log(tier)
+    switch (tier) {
+      case "IRON":
+        return "#371815";
+      case "BRONZE":
+        return "#613d2a";
+      case "SILVER":
+        return "#979797";
+      case "GOLD":
+        return "#ba863e"
+      case "PLATINUM":
+        return "#36bc86"
+      case "EMERALD":
+        return "#009e37"
+      case "DIAMOND":
+        return "#0060a8";
+      case "MASTER":
+        return "#9100d6";
+      case "GRANDMASTER":
+        return "#d60027";
+      case "CHALLENGER":
+        return "#d70027";
+      default:
+        return "#dddddd";
+    }
+}
+
 
 export default SummonerRank;

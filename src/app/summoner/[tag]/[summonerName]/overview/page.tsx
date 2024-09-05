@@ -1,16 +1,14 @@
+"use server";
 import ChampionStatBoard from "@/components/Champion/ChampionStatBoard";
-import MatchItem from "@/components/Match/MatchItem";
-import ProfileNavigation from "@/components/Navigation/ProfileNavigation";
+import MatchPanel from "@/components/Match/MatchPanel";
 import SummonerNotFound from "@/components/Summoner/SummonerNotFound";
 import SummonerRank from "@/components/Summoner/SummonerRank";
-import { Button } from "@/components/ui/button";
 import { getChampions } from "@/lib/champions";
-import { getRandomBackground } from "@/utils";
+import { useQuery } from '@tanstack/react-query'
 import { Match, getMatches } from "@/utils/matches";
 import { getSummonerByName } from "@/utils/summoner";
-import { League } from "@prisma/client";
-import Image from "next/image";
-import Link from "next/link";
+import { League, Summoner } from "@prisma/client";
+
 import React from "react";
 
 interface SummonerPageProps {
@@ -22,16 +20,20 @@ interface SummonerPageProps {
 
 
 
+
+
 const SummonerPage = async ({ params }: SummonerPageProps) => {
-  const summoner = await getSummonerByName(
-    "euw1",
-    decodeURIComponent(params.summonerName),
-    decodeURIComponent(params.tag)
-  );
+
+  const summoner = await getSummonerByName({
+    server: "euw1",
+    summonerName: decodeURIComponent(params.summonerName),
+    tag: decodeURIComponent(params.tag),
+  });
+  
 
   const champions = await getChampions();
-  const matches = await getMatches(summoner.summonerData?.puuid!, 20);
-
+  const matches = await getMatches(summoner.summonerData?.puuid!, 25);
+  
   if (summoner.status !== 200) {
     return (
       <SummonerNotFound
@@ -41,29 +43,29 @@ const SummonerPage = async ({ params }: SummonerPageProps) => {
       />
     );
   }
-
-  const getSummonerAsParticipant = (match: Match) => {
+  
+  function getSummonerAsParticipant(match: Match) {
     return match.info.participants.find((item) => item.puuid == summoner.summonerData?.puuid)
   };
 
-  return (
-    <div className="flex flex-col md:flex-row gap-[8px] p-2 font-inter">
-        <div className="w-full md:w-1/3 space-y-2" >
-          {summoner.summonerData?.leagues.map((league: League) => {
-            return <SummonerRank key={league.queueType} {...league} />;
-          })}
-          <ChampionStatBoard matches={matches} summonerPuuid={summoner.summonerData!.puuid} champions={champions} />
-        </div>
-        <div className="w-full md:w-2/3">
-          
-          {matches.map((match) => {
-            return (
-              <MatchItem key={match.info.gameId} match={match} summonerAsParticipant={getSummonerAsParticipant(match) as any} champions={champions} />
-            );
-          })}
-        </div>
-    </div>
-  );
+    return (
+      <div className="flex flex-col xl:flex-row gap-[8px]  font-inter">
+          <div className="w-full xl:w-1/3 space-y-2" >
+            {summoner.summonerData?.leagues.map((league: League) => {
+              return <SummonerRank key={league.queueType} {...league} />;
+            })}
+            <ChampionStatBoard matches={matches} summoner={summoner.summonerData!} champions={champions} />
+          </div>
+          <div className="w-full xl:w-3/4">
+            <MatchPanel 
+              matches={matches}
+              champions={champions}
+              summonerId={summoner.summonerData?.puuid!}
+            />
+          </div>
+      </div>
+    );
+ 
 };
 
 export default SummonerPage;
